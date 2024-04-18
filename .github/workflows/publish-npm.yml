@@ -49,15 +49,7 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 9
-      # We need to install and run CI to generate the content that will go into the package.
-      # Doesn't hurt to have an extra layer of validation before publishing too.
-      - name: Install dependencies
-        run: |
-          pnpm i
-      - name: Run CI checks
-        # Note that we must use the run verb, as pnpm ci is reserved.
-        run: |
-          pnpm run ci
+      # We don't need to run CI prior to computing dist tags, we'll do that in the publish step
       - name: Compute dist tags
         id: compute_dist_tags
         uses: actions/github-script@v7
