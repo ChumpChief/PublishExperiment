@@ -147,7 +147,6 @@ jobs:
                 .filter((package) => package.latest)
                 .map((package) => `${ package.name }@${ package.version }`);
 
-            console.log(newLatestPackages)
             console.log("New latest packages:");
             for (const package of newLatestPackages) {
                 console.log(package);
@@ -156,6 +155,7 @@ jobs:
             if (dryRun) {
                 console.log("Dry run, skipping tagging");
             } else {
+                console.log("Adding latest tags...")
                 for (const newLatestPackage of newLatestPackages) {
                     await exec.exec("pnpm dist-tag add", [newLatestPackage, "--tag", "latest"]);
                 }
