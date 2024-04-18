@@ -145,7 +145,7 @@ jobs:
 
             const newLatestPackages = packagesToPublish
                 .filter((package) => package.latest)
-                .map((package) => `${ packageToPublish.name }@${ packageToPublish.version }`);
+                .map((package) => `${ package.name }@${ package.version }`);
 
             console.log("New latest packages:");
             newLatestPackages.forEach(console.log);
