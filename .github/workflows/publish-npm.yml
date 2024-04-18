@@ -122,7 +122,7 @@ jobs:
         #   NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         with:
           script: |
-            const { versionedLatestTag, packagesToPublish } = ${{ steps.compute_dist_tags.outputs }}
+            const { versionedLatestTag, packagesToPublish } = ${{ steps.compute_dist_tags.outputs.result }}
             const dryRun = ${{ inputs.dryRun }};
 
             // Actually do the publish.  Use tag latest-<major> for all packages.
