@@ -30,9 +30,11 @@ on:
         default: true
 
 jobs:
-  publish:
-    name: Publish to NPM
+  compute_dist_tags:
+    name: Compute dist tags
     runs-on: ubuntu-latest
+    outputs:
+      computedDistTags: ${{ steps.compute_dist_tags.outputs.result }}
 
     steps:
       - name: Checkout
@@ -115,6 +117,34 @@ jobs:
             const versionedLatestTag = `latest-${ majorVersion }`;
             console.log(`Versioned latest tag: ${ versionedLatestTag }`);
             return { versionedLatestTag, packagesToPublish };
+
+  publish:
+    name: Publish to NPM
+    runs-on: ubuntu-latest
+    needs: [compute_dist_tags]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.releaseTag }}
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: pnpm setup
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      # We need to install and run CI to generate the content that will go into the package.
+      # Doesn't hurt to have an extra layer of validation before publishing too.
+      - name: Install dependencies
+        run: |
+          pnpm i
+      - name: Run CI checks
+        # Note that we must use the run verb, as pnpm ci is reserved.
+        run: |
+          pnpm run ci
       - name: Publish to NPM${{ inputs.dryRun && ' (dry run)' || '' }}
         id: publish_to_npm
         uses: actions/github-script@v7
@@ -122,7 +152,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         with:
           script: |
-            const { versionedLatestTag, packagesToPublish } = ${{ steps.compute_dist_tags.outputs.result }}
+            const { versionedLatestTag } = ${{ needs.compute_dist_tags.outputs.computedDistTags }}
             const dryRun = ${{ inputs.dryRun }};
 
             // Actually do the publish.  Use tag latest-<major> for all packages.
@@ -140,7 +170,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         with:
           script: |
-            const { versionedLatestTag, packagesToPublish } = ${{ steps.compute_dist_tags.outputs.result }}
+            const { packagesToPublish } = ${{ needs.compute_dist_tags.outputs.computedDistTags }}
             const dryRun = ${{ inputs.dryRun }};
 
             const newLatestPackages = packagesToPublish
