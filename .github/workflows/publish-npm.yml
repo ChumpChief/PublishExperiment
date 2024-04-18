@@ -147,8 +147,11 @@ jobs:
                 .filter((package) => package.latest)
                 .map((package) => `${ package.name }@${ package.version }`);
 
+            console.log(newLatestPackages)
             console.log("New latest packages:");
-            newLatestPackages.forEach(console.log);
+            for (const package of newLatestPackages) {
+                console.log(package);
+            }
 
             if (dryRun) {
                 console.log("Dry run, skipping tagging");
