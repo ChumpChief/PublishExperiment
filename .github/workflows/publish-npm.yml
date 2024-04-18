@@ -113,7 +113,7 @@ jobs:
             console.log(packagesToPublish);
 
             const versionedLatestTag = `latest-${ majorVersion }`;
-            console.log(`Will tag using ${ versionedLatestTag }`);
+            console.log(`Versioned latest tag: ${ versionedLatestTag }`);
             return { versionedLatestTag, packagesToPublish };
       - name: Publish to NPM${{ inputs.dryRun && ' (dry run)' || '' }}
         id: publish_to_npm
@@ -130,22 +130,31 @@ jobs:
             console.log(`Will tag using ${ versionedLatestTag }`);
             if (dryRun) {
                 await exec.exec("pnpm publish", ["-r", "--no-git-checks", "--tag", versionedLatestTag, "--dry-run"]);
-                // Add latest tag if appropriate
-                if (packagesToPublish.some((packageToPublish) => packageToPublish.latest)) {
-                    console.log("Would additionally add the latest tag to:")
-                }
-                for (const packageToPublish of packagesToPublish) {
-                    if (packageToPublish.latest) {
-                        console.log(`${ packageToPublish.name }@${ packageToPublish.version }`);
-                    }
-                }
             } else {
                 await exec.exec("pnpm publish", ["-r", "--no-git-checks", "--tag", versionedLatestTag]);
-                // Add latest tag if appropriate
-                for (const packageToPublish of packagesToPublish) {
-                    if (packageToPublish.latest) {
-                        await exec.exec("pnpm dist-tag add", [`${ packageToPublish.name }@${ packageToPublish.version }`, "--tag", "latest"]);
-                    }
+            }
+      - name: Add latest tags${{ inputs.dryRun && ' (dry run)' || '' }}
+        id: add_latest_tags
+        uses: actions/github-script@v7
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        with:
+          script: |
+            const { versionedLatestTag, packagesToPublish } = ${{ steps.compute_dist_tags.outputs.result }}
+            const dryRun = ${{ inputs.dryRun }};
+
+            const newLatestPackages = packagesToPublish
+                .filter((package) => package.latest)
+                .map((package) => `${ packageToPublish.name }@${ packageToPublish.version }`);
+
+            console.log("New latest packages:");
+            newLatestPackages.forEach(console.log);
+
+            if (dryRun) {
+                console.log("Dry run, skipping tagging");
+            } else {
+                for (const newLatestPackage of newLatestPackages) {
+                    await exec.exec("pnpm dist-tag add", [newLatestPackage, "--tag", "latest"]);
                 }
             }
 
