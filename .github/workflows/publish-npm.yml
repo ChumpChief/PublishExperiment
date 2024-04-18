@@ -56,18 +56,12 @@ jobs:
         # Note that we must use the run verb, as pnpm ci is reserved.
         run: |
           pnpm run ci
-      # Here we'll need to get the NPM token
-      # - name: Generate app token
-      #   id: generate_app_token
-      #   uses: actions/create-github-app-token@v1
-      #   with:
-      #     app-id: ${{ vars.CHUMPCHIEF_RELEASE_BOT_APP_ID }}
-      #     private-key: ${{ secrets.CHUMPCHIEF_RELEASE_BOT_APP_PRIVATE_KEY }}
       - name: Publish to NPM${{ inputs.dryRun && ' (dry run)' || '' }}
         id: publish_to_npm
         uses: actions/github-script@v7
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         with:
-          # github-token: ${{ steps.generate_app_token.outputs.token }}
           script: |
             const fs = require("fs");
             const releaseTag = "${{ inputs.releaseTag }}";
