@@ -118,8 +118,8 @@ jobs:
       - name: Publish to NPM${{ inputs.dryRun && ' (dry run)' || '' }}
         id: publish_to_npm
         uses: actions/github-script@v7
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         with:
           script: |
             const { versionedLatestTag, packagesToPublish } = ${{ steps.compute_dist_tags.outputs.result }}
@@ -136,8 +136,8 @@ jobs:
       - name: Add latest tags${{ inputs.dryRun && ' (dry run)' || '' }}
         id: add_latest_tags
         uses: actions/github-script@v7
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         with:
           script: |
             const { versionedLatestTag, packagesToPublish } = ${{ steps.compute_dist_tags.outputs.result }}
