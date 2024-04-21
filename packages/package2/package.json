@@ -30,5 +30,6 @@
         "type": "git",
         "url": "https://github.com/ChumpChief/PublishExperiment.git",
         "directory": "packages/package2"
-    }
+    },
+    "homepage": "https://github.com/ChumpChief/PublishExperiment#readme"
 }
