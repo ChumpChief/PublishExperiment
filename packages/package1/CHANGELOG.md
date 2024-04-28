@@ -1,5 +1,11 @@
 # @chumpchief/package1
 
+## 0.1.2
+
+### Patch Changes
+
+- 84c07a0: Fixed publish script, dependency updates, eslint updates, non-inline source maps
+
 ## 0.1.1
 
 ### Patch Changes
